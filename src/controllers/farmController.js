@@ -1,0 +1,80 @@
+import {Farm} from "../models/farmModel.js"
+import { asyncHandler } from "../utils/asyncHandler.js"
+import { ApiError } from "../utils/ApiError.js"
+import { ApiResponse } from "../utils/ApiResponse.js"
+
+
+const createFarm = asyncHandler(async(req,res) => {
+    const  {farm_name,location} = req.body;
+
+    if(!farm_name || !location){
+        throw new ApiError(400,"Farm name and location are required");
+    }
+
+    const farm = await Farm.create({
+        farm_name,
+        location,
+        owner: req.user._id,
+    });
+
+    return res
+    .status(201)
+    .json(
+        new ApiResponse(201,farm,"Farm created successsfully")
+    );
+});
+
+const getAllFarms = asyncHandler(async(req,res) => {
+    const  farms = await Farm.find({
+        owner : req.user._id
+    });
+    return res
+    .status(200)
+    .json(new ApiResponse(200,farms, "Farms fetched Successfully"));
+});
+
+const updateFarm = asyncHandler(async (req,res) => {
+    const {id} = req.params;
+    const updateData = req.body;
+
+    const farm = await Farm.findOneAndUpdate(
+        { _id : id,
+            owner : req.user._id
+        },
+        updateData,
+        { new: true, runValidators : true }
+    );
+
+    if(!farm){
+        throw new ApiError(404,"Farm not found or you are not the owner");
+    }
+    return  res
+    .status(200)
+    .json(
+        new ApiResponse(200,farm,"Farm updated successfully")
+    );
+});
+
+const deleteFarm = asyncHandler(async(req,res) => {
+    const {id} = req.params;
+    const farm = await Farm.findOneAndDelete({
+        _id : id,
+        owner :  req.user._id
+    });
+    if(!farm){
+        throw new ApiError(400,
+            "Farm not found or you are not the owner");
+    };
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,null,"Farm deleted successfully")
+    )
+})
+export {
+    createFarm,
+    getAllFarms,
+    updateFarm,
+    deleteFarm
+}

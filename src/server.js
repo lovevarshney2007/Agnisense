@@ -6,7 +6,8 @@ import connectDb from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js"
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 import { ApiError } from "./utils/ApiError.js";
-
+import farmRoutes from "./routes/farmRoutes.js";
+import inferenceRoutes from "./routes/inferenceRoutes.js";
 
 //load environment Variables
 dotenv.config();
@@ -28,6 +29,8 @@ app.get("/",(req,res) => {
 })
 
 app.use("/api/v1/auth",authRoutes)
+app.use("/api/v1/farms", farmRoutes);
+app.use("/api/v1/inference", inferenceRoutes);
 
 app.use(errorMiddleware)
 
