@@ -33,7 +33,7 @@ export const submitInferenceJob = asyncHandler(async (req , res) => {
         );
 });
 
-// GET /api/v1/inference/status/:imageId
+
 export const checkJobStatus = asyncHandler(async (req, res) => {
     const { imageId } = req.params;
 
