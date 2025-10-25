@@ -1,11 +1,10 @@
 import JWT from "jsonwebtoken"
-import { asyncHandler } from "../utils/asyncHandler.js"
-import { ApiError } from "../utils/ApiError.js"
+import {asyncHandler,ApiError,ApiResponse} from "../utils/utils.js"
 import {User} from "../models/userModel.js"
 
 
 // middleware to check for a valid JWT token
-export const verifyJWT = asyncHandler(async(req , res,next) => {
+ const verifyJWT = asyncHandler(async(req , res,next) => {
  const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ","")
 
         if(!token){
@@ -22,3 +21,7 @@ export const verifyJWT = asyncHandler(async(req , res,next) => {
         req.user = user;
         next();
 })
+
+export  {
+    verifyJWT
+}

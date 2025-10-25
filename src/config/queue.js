@@ -5,15 +5,28 @@ const connection = {
     port: process.env.REDIS_PORT || 6379,
 };
 
-export const inferenceQueue = new Queue('inferenceQueue', {connection});
+ const inferenceQueue = new Queue('inferenceQueue', {connection});
 
-export const addInferenceJob = async (imageInfo) => {
-    return await inferenceQueue.add('processImage',imageInfo, {
-        attempts : 3,
-        backoff : {
-            type : 'exponential',
-            delay : 1000,
-        },
-    });
+ const addInferenceJob = async (imageInfo) => {
+    try {
+        const job = await inferenceQueue.add('processImage',imageInfo, {
+            attempts : 3,
+            backoff : {
+                type : 'exponential',
+                delay : 1000,
+            },
+        });
+        return job.id;
+    } catch (error) {
+        console.error("Failed to add job", error);
+        throw new ApiError(
+            503, 
+            "ML Service Queue is currently unavailable. Please try again later."
+        );
+    }
 };
 
+export {
+    inferenceQueue,
+    addInferenceJob
+}

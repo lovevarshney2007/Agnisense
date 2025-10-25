@@ -1,8 +1,5 @@
 import {Farm} from "../models/farmModel.js"
-import { asyncHandler } from "../utils/asyncHandler.js"
-import { ApiError } from "../utils/ApiError.js"
-import { ApiResponse } from "../utils/ApiResponse.js"
-
+import {asyncHandler,ApiError,ApiResponse} from "../utils/utils.js"
 
 const createFarm = asyncHandler(async(req,res) => {
     const  {farm_name,location} = req.body;

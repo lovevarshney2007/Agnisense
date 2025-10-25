@@ -1,16 +1,15 @@
 import { Image } from "../models/imageModel.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import {asyncHandler,ApiError,ApiResponse} from "../utils/utils.js"
 import { addInferenceJob } from "../config/queue.js";
 
-export const submitInferenceJob = asyncHandler(async (req , res) => {
-    const { farmId,imageUrl } = req.body;
+ const submitInferenceJob = asyncHandler(async (req , res) => {
+    const { farmId} = req.body;
+    const localFilePath = req.file?.path;
 
-    if(!farmId || !imageUrl ){
-        throw new ApiError(400,"Farm ID and Image URL are required.");
+    if(!farmId || !localFilePath ){
+        throw new ApiError(400,"Farm ID and Image files are required.");
     }
-
+    const  imageUrl = localFilePath;
     const imageRecord = await Image.create({
         farm : farmId,
         uploadedBy : req.user._id,
@@ -34,7 +33,7 @@ export const submitInferenceJob = asyncHandler(async (req , res) => {
 });
 
 
-export const checkJobStatus = asyncHandler(async (req, res) => {
+ const checkJobStatus = asyncHandler(async (req, res) => {
     const { imageId } = req.params;
 
     const image = await Image.findById(imageId).select('status job_id');
@@ -50,3 +49,9 @@ export const checkJobStatus = asyncHandler(async (req, res) => {
        
     }, "Job status retrieved successfully."));
 });
+
+
+export {
+    submitInferenceJob,
+    checkJobStatus
+}
