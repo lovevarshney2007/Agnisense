@@ -14,7 +14,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
     const refreshToken = user.generateRefreshToken();
 
     user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false }); // Save refresh token in DB
+    await user.save({ validateBeforeSave: false }); 
 
     return { accessToken, refreshToken };
   } catch (error) {
@@ -25,12 +25,12 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const registerController = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
-  // validation
+ 
   if ([name, email, password].some((field) => !field || field.trim() === "")) {
     throw new ApiError(400, "All fields (name, email, password) are required");
   }
 
-  // Check if user Already exist or not
+ 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new ApiError(409, "User Already registered, Please Login");
@@ -45,7 +45,7 @@ const registerController = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Something went wrong while registering the user");
   }
 
-  // success registeration
+  
   return res
     .status(201)
     .json(new ApiResponse(201, createdUser, "User registered successfully"));
@@ -55,12 +55,11 @@ const registerController = asyncHandler(async (req, res) => {
 const loginController = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // validation
   if (!email || !password) {
     throw new ApiError(400, "Email And Password Are Required");
   }
 
-  // find user
+  
   const user = await User.findOne({ email }).select("+password +refreshToken");
   if (!user) {
     throw new ApiError(404, "User does not exist");
@@ -93,7 +92,7 @@ const loginController = asyncHandler(async (req, res) => {
         200,
         {
           user: loggedInUser,
-          accessToken, // Frontend convenience ke liye body mein bhi bheja
+          accessToken, 
         },
         "User logged in Successfully"
       )
@@ -102,7 +101,7 @@ const loginController = asyncHandler(async (req, res) => {
 
 // Logout Controller
 const logoutController = asyncHandler(async (req, res) => {
-  // DB se refreshToken hatao
+  
   await User.findByIdAndUpdate(req.user._id, {
     $set: { refreshToken: undefined },
   });
@@ -121,7 +120,7 @@ const logoutController = asyncHandler(async (req, res) => {
 
 // Refresh AccessToken Controller
 const refreshAccessTokenController = asyncHandler(async (req, res) => {
-  // Cookie se refresh token nikalna
+  
   const incomingRefreshToken = req.cookies.refreshToken;
 
   if (!incomingRefreshToken) {
@@ -133,7 +132,7 @@ const refreshAccessTokenController = asyncHandler(async (req, res) => {
   const user = await User.findById(decodedToken?._id).select("+refreshToken");
 
   if (!user || incomingRefreshToken !== user?.refreshToken) {
-    // Token mismatch ya expired/used token
+    
     throw new ApiError(401, "Invalid or expired refresh token");
   }
 
@@ -253,7 +252,7 @@ const socialLoginMockController = asyncHandler(async (req, res) => {
   let user = await User.findOne({ email }).select("+password +refreshToken");
 
   if (!user) {
-    // Agar user exist nahi karta, toh naya user banayein (Auto-register)
+    
     user = await User.create({
       name: "Social User",
       email: email,
